@@ -1,0 +1,31 @@
+# Rust
+/target
+**/target
+Cargo.lock
+
+# Node / Next.js
+web/node_modules
+web/.next
+web/out
+web/.turbo
+web/next-env.d.ts
+web/*.tsbuildinfo
+web/coverage
+web/playwright-report
+web/test-results
+
+# Env
+.env
+.env.local
+.env.*.local
+web/.env
+web/.env.local
+
+# Stellar / Soroban identities
+.soroban
+scripts/.identities
+
+# Misc
+.DS_Store
+*.log
+deployed_addresses.local.json
