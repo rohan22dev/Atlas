@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::testutils::Address as _;
+use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::Env;
 
 fn setup() -> (Env, TestTokenClient<'static>, Address, Address) {
@@ -102,4 +102,30 @@ fn test_negative_amount_rejected() {
     let (_env, client, _admin, user) = setup();
     let result = client.try_mint(&user, &-10);
     assert!(result.is_err());
+}
+
+#[test]
+fn test_faucet_claim() {
+    let (_env, client, _admin, user) = setup();
+    let claimed = client.faucet(&user);
+    assert_eq!(claimed, FAUCET_AMOUNT);
+    assert_eq!(client.balance(&user), FAUCET_AMOUNT);
+}
+
+#[test]
+fn test_faucet_cooldown_blocks_repeat_claim() {
+    let (_env, client, _admin, user) = setup();
+    client.faucet(&user);
+    let result = client.try_faucet(&user);
+    assert!(result.is_err());
+}
+
+#[test]
+fn test_faucet_available_again_after_cooldown() {
+    let (env, client, _admin, user) = setup();
+    client.faucet(&user);
+    env.ledger().set_timestamp(env.ledger().timestamp() + FAUCET_COOLDOWN + 1);
+    let claimed = client.faucet(&user);
+    assert_eq!(claimed, FAUCET_AMOUNT);
+    assert_eq!(client.balance(&user), FAUCET_AMOUNT * 2);
 }

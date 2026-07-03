@@ -29,6 +29,11 @@ pub struct TokenMetadata {
     pub symbol: String,
 }
 
+/// Amount minted per permissionless faucet claim: 1,000 tokens (7 decimals).
+pub const FAUCET_AMOUNT: i128 = 1_000_0000000;
+/// Minimum time between faucet claims for a single address, in seconds.
+pub const FAUCET_COOLDOWN: u64 = 3_600;
+
 #[contractevent(topics = ["transfer"])]
 pub struct Transfer {
     #[topic]
@@ -62,6 +67,19 @@ pub struct Approve {
     pub spender: Address,
     pub amount: i128,
     pub expiration_ledger: u32,
+}
+
+#[contractevent(topics = ["faucet_claimed"])]
+pub struct FaucetClaimed {
+    #[topic]
+    pub to: Address,
+    pub amount: i128,
+}
+
+#[derive(Clone)]
+#[contracttype]
+enum FaucetKey {
+    LastClaim(Address),
 }
 
 fn check_nonnegative_amount(amount: i128) {
@@ -102,6 +120,36 @@ impl TestToken {
         extend_instance_ttl(&env);
         receive_balance(&env, to.clone(), amount);
         Mint { admin, to, amount }.publish(&env);
+    }
+
+    /// Permissionless testnet faucet: any address may claim
+    /// `FAUCET_AMOUNT` once per `FAUCET_COOLDOWN` seconds. This lets the
+    /// Atlas frontend hand out test USDC without any privileged backend
+    /// signer -- the caller simply authorizes the claim with their own
+    /// wallet.
+    pub fn faucet(env: Env, to: Address) -> i128 {
+        to.require_auth();
+        extend_instance_ttl(&env);
+
+        let key = FaucetKey::LastClaim(to.clone());
+        let now = env.ledger().timestamp();
+        if let Some(last_claim) = env.storage().temporary().get::<_, u64>(&key) {
+            if now < last_claim + FAUCET_COOLDOWN {
+                panic!("faucet cooldown not elapsed");
+            }
+        }
+        env.storage().temporary().set(&key, &now);
+        env.storage()
+            .temporary()
+            .extend_ttl(&key, FAUCET_COOLDOWN as u32, FAUCET_COOLDOWN as u32);
+
+        receive_balance(&env, to.clone(), FAUCET_AMOUNT);
+        FaucetClaimed {
+            to,
+            amount: FAUCET_AMOUNT,
+        }
+        .publish(&env);
+        FAUCET_AMOUNT
     }
 
     pub fn set_admin(env: Env, new_admin: Address) {
