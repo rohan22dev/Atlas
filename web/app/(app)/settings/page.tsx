@@ -114,13 +114,20 @@ export default function SettingsPage() {
               <span className="text-muted-foreground">{row.label}</span>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs">{truncateAddress(row.id, 6)}</span>
-                <Button variant="ghost" size="icon" className="size-6" onClick={() => copy(row.id)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  aria-label={`Copy ${row.label} contract address`}
+                  onClick={() => copy(row.id)}
+                >
                   <Copy className="size-3" />
                 </Button>
                 <a
                   href={`https://stellar.expert/explorer/testnet/contract/${row.id}`}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={`View ${row.label} contract on Stellar Expert`}
                   className="text-muted-foreground hover:text-atlas-blue"
                 >
                   <ExternalLink className="size-3" />
