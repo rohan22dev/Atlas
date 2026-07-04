@@ -35,11 +35,11 @@ export function LandingNavbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button variant="ghost" render={<Link href="/docs" />}>
+          <Button variant="ghost" nativeButton={false} render={<Link href="/docs" />}>
             Documentation
           </Button>
           <WalletButton />
-          <Button render={<Link href="/dashboard" />} className="bg-gradient-to-r from-atlas-blue to-atlas-purple text-white hover:opacity-90">
+          <Button nativeButton={false} render={<Link href="/dashboard" />} className="bg-gradient-to-r from-atlas-blue to-atlas-purple text-white hover:opacity-90">
             Launch App
           </Button>
         </div>

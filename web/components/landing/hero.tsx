@@ -33,13 +33,13 @@ export function Hero() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button
               size="lg"
-              render={<Link href="/dashboard" />}
+              nativeButton={false} render={<Link href="/dashboard" />}
               className="gap-2 bg-gradient-to-r from-atlas-blue to-atlas-purple text-white shadow-lg shadow-atlas-blue/20 hover:opacity-90"
             >
               Launch App
               <ArrowRight className="size-4" />
             </Button>
-            <Button size="lg" variant="outline" render={<Link href="/docs" />} className="gap-2">
+            <Button size="lg" variant="outline" nativeButton={false} render={<Link href="/docs" />} className="gap-2">
               <BookOpen className="size-4" />
               Documentation
             </Button>

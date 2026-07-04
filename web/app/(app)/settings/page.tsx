@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ function copy(value: string) {
 export default function SettingsPage() {
   const { address, isConnected, disconnect } = useWallet();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -68,10 +71,14 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {theme === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />}
+            {mounted && theme === "light" ? <Sun className="size-4" /> : <Moon className="size-4" />}
             <Label htmlFor="theme-toggle">Dark mode</Label>
           </div>
-          <Switch id="theme-toggle" checked={theme === "dark"} onCheckedChange={(v) => setTheme(v ? "dark" : "light")} />
+          <Switch
+            id="theme-toggle"
+            checked={!mounted || theme === "dark"}
+            onCheckedChange={(v) => setTheme(v ? "dark" : "light")}
+          />
         </CardContent>
       </Card>
 

@@ -24,7 +24,7 @@ export function CtaSection() {
         <div className="mt-8 flex justify-center">
           <Button
             size="lg"
-            render={<Link href="/dashboard" />}
+            nativeButton={false} render={<Link href="/dashboard" />}
             className="gap-2 bg-gradient-to-r from-atlas-blue to-atlas-purple text-white shadow-lg shadow-atlas-blue/20 hover:opacity-90"
           >
             Launch App
