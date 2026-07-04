@@ -169,18 +169,39 @@ fn test_repay_reduces_debt() {
 }
 
 #[test]
-fn test_repay_overpayment_clamped() {
+fn test_repay_full_debt_exactly_succeeds() {
     let ctx = setup();
     let user = user_with_xlm(&ctx, 10_000_0000000);
     ctx.vault.deposit(&user, &10_000_0000000);
     ctx.vault.borrow(&user, &500_0000000);
 
     ctx.usdc.mint(&user, &1_000_0000000);
-    let repaid = ctx.vault.repay(&user, &900_0000000);
+    let repaid = ctx.vault.repay(&user, &500_0000000);
     assert_eq!(repaid, 500_0000000);
 
     let position = ctx.vault.get_position(&user);
     assert_eq!(position.debt_principal, 0);
+}
+
+#[test]
+fn test_repay_overpayment_rejected() {
+    // Repay no longer silently clamps an over-large amount down to the
+    // live debt total and transfers that instead: the transferred amount
+    // must always equal exactly what the caller's wallet authorized, so
+    // that Soroban's argument-bound authorization never mismatches
+    // between simulating and executing the transaction (see the
+    // `RepayExceedsDebt` doc comment on `repay`).
+    let ctx = setup();
+    let user = user_with_xlm(&ctx, 10_000_0000000);
+    ctx.vault.deposit(&user, &10_000_0000000);
+    ctx.vault.borrow(&user, &500_0000000);
+
+    ctx.usdc.mint(&user, &1_000_0000000);
+    let result = ctx.vault.try_repay(&user, &900_0000000);
+    assert!(result.is_err());
+
+    let position = ctx.vault.get_position(&user);
+    assert_eq!(position.debt_principal, 500_0000000);
 }
 
 #[test]
@@ -284,13 +305,30 @@ fn test_seize_by_liquidation_contract_succeeds() {
     ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000); // $0.07
 
     let liquidator = Address::generate(&ctx.env);
-    let (debt_cleared, collateral_seized) = ctx.vault.seize(&liquidator, &user);
+    let (debt_cleared, collateral_seized) = ctx.vault.seize(&liquidator, &user, &600_0000000);
     assert_eq!(debt_cleared, 600_0000000);
     assert!(collateral_seized > 0);
     assert_eq!(ctx.xlm.balance(&liquidator), collateral_seized);
 
     let position = ctx.vault.get_position(&user);
     assert_eq!(position.debt_principal, 0);
+}
+
+#[test]
+fn test_seize_with_insufficient_repay_amount_rejected() {
+    let ctx = setup();
+    let user = user_with_xlm(&ctx, 10_000_0000000);
+    ctx.vault.deposit(&user, &10_000_0000000);
+    ctx.vault.borrow(&user, &600_0000000);
+    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+
+    let liquidator = Address::generate(&ctx.env);
+    // Liquidator only offers to repay 500 of the 600 owed.
+    let result = ctx.vault.try_seize(&liquidator, &user, &500_0000000);
+    assert!(result.is_err());
+
+    let position = ctx.vault.get_position(&user);
+    assert_eq!(position.debt_principal, 600_0000000);
 }
 
 #[test]
@@ -301,7 +339,7 @@ fn test_seize_when_healthy_rejected() {
     ctx.vault.borrow(&user, &100_0000000); // very healthy
 
     let liquidator = Address::generate(&ctx.env);
-    let result = ctx.vault.try_seize(&liquidator, &user);
+    let result = ctx.vault.try_seize(&liquidator, &user, &100_0000000);
     assert!(result.is_err());
 }
 
@@ -364,7 +402,7 @@ fn test_seize_without_liquidation_contract_registered_rejected() {
     vault.deposit(&user, &10_000_0000000);
 
     let liquidator = Address::generate(&env);
-    let result = vault.try_seize(&liquidator, &user);
+    let result = vault.try_seize(&liquidator, &user, &10_000_0000000);
     assert!(result.is_err());
 }
 

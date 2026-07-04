@@ -14,6 +14,8 @@ export const VAULT_ERRORS: Record<number, string> = {
   10: "Caller is not the registered liquidation contract",
   11: "Liquidation contract has not been registered yet",
   12: "Amount overflow",
+  13: "Repay amount exceeds outstanding debt",
+  14: "Repayment amount does not cover the position's outstanding debt",
 };
 
 export const ORACLE_ERRORS: Record<number, string> = {
@@ -39,6 +41,7 @@ export const LIQUIDATION_ERRORS: Record<number, string> = {
   2: "Liquidation contract is already initialized",
   3: "This vault is healthy and cannot be liquidated",
   4: "This vault has no outstanding debt",
+  5: "The repayment amount does not cover the vault's current debt",
 };
 
 export const TOKEN_ERRORS: Record<number, string> = {};

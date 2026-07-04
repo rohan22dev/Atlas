@@ -10,5 +10,5 @@ use soroban_sdk::{contractclient, Address, Env};
 pub trait VaultInterface {
     fn calculate_health(env: Env, user: Address) -> i128;
     fn get_debt(env: Env, user: Address) -> i128;
-    fn seize(env: Env, liquidator: Address, owner: Address) -> (i128, i128);
+    fn seize(env: Env, liquidator: Address, owner: Address, repay_amount: i128) -> (i128, i128);
 }

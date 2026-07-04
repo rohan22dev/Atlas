@@ -29,3 +29,6 @@ scripts/.identities
 .DS_Store
 *.log
 deployed_addresses.local.json
+
+# Soroban test snapshot artifacts (regenerated each test run)
+**/test_snapshots/

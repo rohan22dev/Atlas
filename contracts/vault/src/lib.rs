@@ -105,6 +105,8 @@ pub enum VaultError {
     NotLiquidationContract = 10,
     LiquidationContractNotSet = 11,
     Overflow = 12,
+    RepayExceedsDebt = 13,
+    InsufficientRepayment = 14,
 }
 
 #[contractevent(topics = ["deposited"])]
@@ -340,8 +342,20 @@ impl VaultContract {
         Ok(new_debt)
     }
 
-    /// Repays up to `amount` of USDC debt. Overpayment is clamped to the
-    /// outstanding balance. Returns the amount actually repaid.
+    /// Repays `amount` of USDC debt. `amount` must not exceed the current
+    /// outstanding balance (post-interest) -- callers that intend to
+    /// fully close a position should pass the debt value most recently
+    /// read; because debt only ever grows between that read and this
+    /// call executing (continuous interest accrual), passing that
+    /// slightly-stale figure always remains valid, it just leaves a
+    /// negligible dust amount outstanding if any time passed. This
+    /// contract deliberately does *not* clamp an over-large `amount` down
+    /// to the live debt total and transfer that instead: `amount` is also
+    /// the exact figure the caller's wallet signed authorization for, and
+    /// Soroban authorization is bound to exact argument values -- if the
+    /// transferred amount were silently recomputed here to something the
+    /// wallet never signed, the transfer's `require_auth` would fail
+    /// whenever on-chain debt drifted between simulation and execution.
     pub fn repay(env: Env, user: Address, amount: i128) -> Result<i128, VaultError> {
         if amount <= 0 {
             return Err(VaultError::InvalidAmount);
@@ -354,28 +368,25 @@ impl VaultContract {
         if position.debt_principal <= 0 {
             return Err(VaultError::InsufficientDebt);
         }
-
-        let repay_amount = if amount > position.debt_principal {
-            position.debt_principal
-        } else {
-            amount
-        };
+        if amount > position.debt_principal {
+            return Err(VaultError::RepayExceedsDebt);
+        }
 
         let borrow_token = Self::get_addr(&env, &DataKey::BorrowToken)?;
         let treasury = Self::get_addr(&env, &DataKey::Treasury)?;
         let client = token::Client::new(&env, &borrow_token);
-        client.transfer(&user, &treasury, &repay_amount);
+        client.transfer(&user, &treasury, &amount);
 
-        position.debt_principal -= repay_amount;
+        position.debt_principal -= amount;
         Self::save_position(&env, &user, &position);
 
         Repaid {
             user,
-            amount: repay_amount,
+            amount,
             new_debt: position.debt_principal,
         }
         .publish(&env);
-        Ok(repay_amount)
+        Ok(amount)
     }
 
     /// Computes the current health factor (scaled by 1e7; 1.0 == 10_000_000).
@@ -454,7 +465,16 @@ impl VaultContract {
     /// Callable only by the registered Liquidation contract, which is
     /// responsible for having already collected `debt_cleared` USDC from
     /// the liquidator into the Treasury in the same transaction.
-    pub fn seize(env: Env, liquidator: Address, owner: Address) -> Result<(i128, i128), VaultError> {
+    ///
+    /// `repay_amount` is the exact amount of USDC the Liquidation contract
+    /// has already transferred into the Treasury on the liquidator's
+    /// behalf (see `contracts/liquidation`). It must cover the position's
+    /// full current debt; any surplus (from the small buffer the caller
+    /// pads onto the live-accruing debt figure to survive the gap between
+    /// simulating and executing the transaction) is left in the Treasury
+    /// as protocol liquidity rather than refunded, keeping this call free
+    /// of any further auth-constrained token transfers.
+    pub fn seize(env: Env, liquidator: Address, owner: Address, repay_amount: i128) -> Result<(i128, i128), VaultError> {
         let liquidation_contract: Address = env
             .storage()
             .instance()
@@ -467,6 +487,9 @@ impl VaultContract {
 
         if position.debt_principal <= 0 {
             return Err(VaultError::NotLiquidatable);
+        }
+        if repay_amount < position.debt_principal {
+            return Err(VaultError::InsufficientRepayment);
         }
 
         let (price_collateral, price_debt) = Self::prices(&env)?;
@@ -591,11 +614,18 @@ impl VaultContract {
         position.debt_principal = new_principal;
         position.last_accrued = now;
 
-        if interest_delta > 0 {
-            if let Ok(treasury) = Self::get_addr(env, &DataKey::Treasury) {
-                let treasury_client = TreasuryClient::new(env, &treasury);
-                treasury_client.record_fee(&interest_delta);
-            }
+        // Always call the Treasury, even when interest_delta is 0. The
+        // elapsed time (and therefore interest_delta) can differ between
+        // when a transaction is simulated (to compute its storage
+        // footprint) and when it actually executes on-chain -- if this
+        // call were conditional, a value that simulates as 0 but accrues
+        // to >0 by execution time would make the transaction touch the
+        // Treasury's contract instance outside of its precomputed
+        // footprint, and fail. Calling unconditionally keeps the
+        // footprint identical regardless of timing.
+        if let Ok(treasury) = Self::get_addr(env, &DataKey::Treasury) {
+            let treasury_client = TreasuryClient::new(env, &treasury);
+            treasury_client.record_fee(&interest_delta);
         }
     }
 

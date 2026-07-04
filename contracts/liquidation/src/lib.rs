@@ -37,6 +37,7 @@ pub enum LiquidationError {
     AlreadyInitialized = 2,
     NotLiquidatable = 3,
     NoDebt = 4,
+    InsufficientRepayAmount = 5,
 }
 
 #[contractevent(topics = ["liquidation_executed"])]
@@ -82,11 +83,25 @@ impl LiquidationContract {
 
     /// Executes a liquidation of `owner`'s position. The caller
     /// (`liquidator`) must authorize this call and must hold enough
-    /// borrow-asset (USDC) balance to cover the position's full
-    /// outstanding debt, which is transferred to the Treasury before any
-    /// collateral moves. In return the liquidator receives the position's
-    /// collateral plus the protocol's 5% liquidation bonus.
-    pub fn liquidate(env: Env, liquidator: Address, owner: Address) -> Result<(i128, i128), LiquidationError> {
+    /// borrow-asset (USDC) balance to cover `repay_amount`, which is
+    /// transferred to the Treasury before any collateral moves. In return
+    /// the liquidator receives the position's collateral plus the
+    /// protocol's 5% liquidation bonus.
+    ///
+    /// `repay_amount` is supplied by the caller (rather than this
+    /// function reading the position's live debt and using that
+    /// directly) and must be at least the position's current outstanding
+    /// debt. Debt accrues interest every second, so the exact figure can
+    /// differ slightly between when a caller's wallet simulates this
+    /// transaction (fixing the exact arguments it authorizes) and when it
+    /// actually executes on-chain; since Soroban authorization is bound to
+    /// exact argument values, recomputing the amount live and feeding it
+    /// into the auth-required token transfer would make that transfer's
+    /// authorization intermittently fail. Callers should pass the
+    /// most-recently-read debt plus a small buffer -- any surplus beyond
+    /// the position's actual debt is left in the Treasury as protocol
+    /// liquidity rather than refunded.
+    pub fn liquidate(env: Env, liquidator: Address, owner: Address, repay_amount: i128) -> Result<(i128, i128), LiquidationError> {
         liquidator.require_auth();
 
         let vault = Self::get_addr(&env, &DataKey::Vault)?;
@@ -101,13 +116,16 @@ impl LiquidationContract {
         if debt <= 0 {
             return Err(LiquidationError::NoDebt);
         }
+        if repay_amount < debt {
+            return Err(LiquidationError::InsufficientRepayAmount);
+        }
 
         let borrow_token = Self::get_addr(&env, &DataKey::BorrowToken)?;
         let treasury = Self::get_addr(&env, &DataKey::Treasury)?;
         let token_client = token::Client::new(&env, &borrow_token);
-        token_client.transfer(&liquidator, &treasury, &debt);
+        token_client.transfer(&liquidator, &treasury, &repay_amount);
 
-        let (debt_repaid, collateral_seized) = vault_client.seize(&liquidator, &owner);
+        let (debt_repaid, collateral_seized) = vault_client.seize(&liquidator, &owner, &repay_amount);
 
         LiquidationExecuted {
             owner,

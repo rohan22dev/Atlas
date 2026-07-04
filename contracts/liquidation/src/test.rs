@@ -96,7 +96,7 @@ fn test_full_liquidation_flow() {
     ctx.usdc.mint(&liquidator, &1_000_0000000);
 
     let liquidator_xlm_before = ctx.xlm.balance(&liquidator);
-    let (debt_repaid, collateral_seized) = ctx.liquidation.liquidate(&liquidator, &user);
+    let (debt_repaid, collateral_seized) = ctx.liquidation.liquidate(&liquidator, &user, &600_0000000);
 
     assert_eq!(debt_repaid, 600_0000000);
     assert!(collateral_seized > 0);
@@ -127,7 +127,7 @@ fn test_liquidate_healthy_position_rejected() {
     let liquidator = Address::generate(&ctx.env);
     ctx.usdc.mint(&liquidator, &1_000_0000000);
 
-    let result = ctx.liquidation.try_liquidate(&liquidator, &user);
+    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &100_0000000);
     assert!(result.is_err());
 }
 
@@ -142,7 +142,7 @@ fn test_liquidate_insufficient_liquidator_balance_reverts_atomically() {
 
     // Liquidator has no USDC at all.
     let liquidator = Address::generate(&ctx.env);
-    let result = ctx.liquidation.try_liquidate(&liquidator, &user);
+    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &600_0000000);
     assert!(result.is_err());
 
     // Position must be untouched -- debt still outstanding, no collateral
@@ -150,6 +150,26 @@ fn test_liquidate_insufficient_liquidator_balance_reverts_atomically() {
     let position = ctx.vault.get_position(&user);
     assert_eq!(position.debt_principal, 600_0000000);
     assert_eq!(position.collateral, 10_000_0000000);
+}
+
+#[test]
+fn test_liquidate_with_insufficient_repay_amount_rejected() {
+    let ctx = setup();
+    let user = Address::generate(&ctx.env);
+    ctx.xlm.mint(&user, &10_000_0000000);
+    ctx.vault.deposit(&user, &10_000_0000000);
+    ctx.vault.borrow(&user, &600_0000000);
+    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+
+    let liquidator = Address::generate(&ctx.env);
+    ctx.usdc.mint(&liquidator, &1_000_0000000);
+
+    // Liquidator only offers to repay half the debt.
+    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &300_0000000);
+    assert!(result.is_err());
+
+    let position = ctx.vault.get_position(&user);
+    assert_eq!(position.debt_principal, 600_0000000);
 }
 
 #[test]
