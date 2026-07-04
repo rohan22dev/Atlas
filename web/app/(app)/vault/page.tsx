@@ -27,12 +27,18 @@ export default function VaultDetailsPage() {
 
   if (!isConnected) {
     return (
-      <Card className="atlas-card mx-auto max-w-md">
-        <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
-          <p className="text-sm text-muted-foreground">Connect your wallet to view your vault details.</p>
-          <Button onClick={() => connect()}>Connect Wallet</Button>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">My Vault</h1>
+          <p className="text-sm text-muted-foreground">Full position detail and history.</p>
+        </div>
+        <Card className="atlas-card mx-auto max-w-md">
+          <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+            <p className="text-sm text-muted-foreground">Connect your wallet to view your vault details.</p>
+            <Button onClick={() => connect()}>Connect Wallet</Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
