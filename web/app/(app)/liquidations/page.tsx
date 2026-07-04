@@ -29,7 +29,7 @@ export default function LiquidationsPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard label="Liquidatable Vaults" value={liquidatable.length} icon={ShieldAlert} accent="red" />
-        <StatCard label="Total Vaults" value={vaults?.length ?? 0} icon={Wallet2} accent="blue" />
+        <StatCard label="Vaults With Debt" value={vaults?.length ?? 0} icon={Wallet2} accent="blue" />
         <StatCard label="Available Bonus" value={formatUsd(totalBonus)} icon={Gavel} accent="green" />
       </div>
 
