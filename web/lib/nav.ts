@@ -13,4 +13,5 @@ export const APP_NAV_LINKS: NavLink[] = [
   { href: "/liquidations", label: "Liquidations", icon: Gavel },
   { href: "/stats", label: "Protocol Stats", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/wallet", label: "Wallet", icon: Vault },
 ];
