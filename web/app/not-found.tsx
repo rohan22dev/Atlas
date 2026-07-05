@@ -13,12 +13,14 @@ export default function NotFound() {
         <p className="mt-1 text-sm text-muted-foreground">The page you&apos;re looking for has drifted off-chain.</p>
       </div>
       <div className="flex gap-3">
-        <Button nativeButton={false} render={<Link href="/" />} className="gap-2">
-          <Compass className="size-4" />
-          Back to Home
+        <Button asChild className="gap-2">
+          <Link href="/">
+            <Compass className="size-4" />
+            Back to Home
+          </Link>
         </Button>
-        <Button variant="outline" nativeButton={false} render={<Link href="/dashboard" />}>
-          Go to Dashboard
+        <Button variant="outline" asChild>
+          <Link href="/dashboard">Go to Dashboard</Link>
         </Button>
       </div>
     </div>
