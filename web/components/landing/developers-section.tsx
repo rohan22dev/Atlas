@@ -179,8 +179,8 @@ export function DevelopersSection() {
 
 function highlightSyntax(line: string): string {
   return line
-    .replace(/(import|from|const|await|for|process)/g, '<span class="text-primary">$1</span>')
-    .replace(/('.*?'|".*?")/g, '<span class="text-green-400">$1</span>')
-    .replace(/(\/\/.*$)/g, '<span class="text-muted-foreground/50">$1</span>')
-    .replace(/(\{|\}|\(|\)|\[|\])/g, '<span class="text-muted-foreground">$1</span>');
+    .replace(/(import|from|const|await|for|process)/g, '<span class=text-primary>$1</span>')
+    .replace(/('.*?'|".*?")/g, '<span class=text-green-400>$1</span>')
+    .replace(/(\/\/.*$)/g, '<span class=text-muted-foreground/50>$1</span>')
+    .replace(/(\{|\}|\(|\)|\[|\])/g, '<span class=text-muted-foreground>$1</span>');
 }

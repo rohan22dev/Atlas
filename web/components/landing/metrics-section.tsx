@@ -73,9 +73,11 @@ const metrics = [
 ];
 
 export function MetricsSection() {
+  const [mounted, setMounted] = useState(false);
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
+    setMounted(true);
     const interval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
@@ -100,7 +102,7 @@ export function MetricsSection() {
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span>All systems operational</span>
             <span className="text-border">|</span>
-            <span>{time.toLocaleTimeString()}</span>
+            <span>{mounted ? time.toLocaleTimeString() : "00:00:00"}</span>
           </div>
         </div>
         

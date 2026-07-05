@@ -188,9 +188,9 @@ export function HowItWorksSection() {
 
 function highlightCode(line: string): string {
   return line
-    .replace(/(atlas|process|env)/g, '<span class="text-foreground">$1</span>')
-    .replace(/(\.\w+)/g, '<span class="text-primary">$1</span>')
-    .replace(/('.*?'|".*?")/g, '<span class="text-green-400">$1</span>')
-    .replace(/(\/\/.*$)/g, '<span class="text-muted-foreground/50">$1</span>')
-    .replace(/(\{|\}|\(|\)|\[|\]|:)/g, '<span class="text-muted-foreground/70">$1</span>');
+    .replace(/(atlas|process|env)/g, '<span class=text-foreground>$1</span>')
+    .replace(/(\.\w+)/g, '<span class=text-primary>$1</span>')
+    .replace(/('.*?'|".*?")/g, '<span class=text-green-400>$1</span>')
+    .replace(/(\/\/.*$)/g, '<span class=text-muted-foreground/50>$1</span>')
+    .replace(/(\{|\}|\(|\)|\[|\]|:)/g, '<span class=text-muted-foreground/70>$1</span>');
 }

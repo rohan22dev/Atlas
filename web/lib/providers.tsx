@@ -26,7 +26,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
       <QueryClientProvider client={queryClient}>
         <WalletProvider>
-          <TooltipProvider delay={150}>
+          <TooltipProvider delayDuration={150}>
             {children}
             <Toaster richColors position="bottom-right" theme="dark" />
           </TooltipProvider>
