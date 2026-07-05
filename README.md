@@ -40,6 +40,11 @@ These addresses (and the network config) live in [`deployed_addresses.json`](./d
 copied into [`web/lib/contracts/deployed_addresses.json`](./web/lib/contracts/deployed_addresses.json) for the
 frontend to import directly — no environment variables required to run the app against the live deployment.
 
+| Resource | Link |
+|----------|------|
+| 🚀 Live Demo | https://atlastellar.vercel.app/ |
+| 🎥 Demo Video | https://youtu.be/4u5NIZqqHec |
+
 ## Architecture
 
 Five Soroban contracts compose the protocol. See [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) and
