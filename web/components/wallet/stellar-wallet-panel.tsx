@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { detectFreighter, connectWallet, signTx } from "@/lib/stellar-wallet";
+import { detectFreighter } from "@/lib/stellar-wallet";
 import { useWallet } from "@/hooks/use-stellar-wallet";
 import { Button } from "@/components/ui/button";
 
@@ -37,7 +37,7 @@ export function StellarWalletPanel() {
   const handleConnect = async () => {
     try {
       await connect();
-    } catch (e) {
+    } catch {
       // Error is handled in hook
     }
   };
