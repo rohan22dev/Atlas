@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AsciiDna } from "./ascii-dna";
 import { Copy, Check } from "lucide-react";
 
 const codeExamples = [

@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { AsciiSphere } from "./ascii-sphere";
 import { AsciiWave } from "./ascii-wave";
-import { AsciiTorus } from "./ascii-torus"; // Added import for AsciiTorus
 
 export function HeroSection() {
   const [isVisible, setIsVisible] = useState(false);

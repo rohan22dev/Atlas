@@ -13,7 +13,6 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffi
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          const start = 0;
           const duration = 2000;
           const startTime = performance.now();
 

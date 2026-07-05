@@ -115,6 +115,10 @@ export function AsciiCube({ className = "" }: { className?: string }) {
   }, []);
 
   return (
-    null
+    <canvas
+      ref={canvasRef}
+      className={className}
+      style={{ imageRendering: "pixelated" }}
+    />
   );
 }

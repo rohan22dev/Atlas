@@ -26,6 +26,7 @@ export default function Icon() {
       >
         <img
           src={`data:image/jpeg;base64,${base64}`}
+          alt="Atlas Icon"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
