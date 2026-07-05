@@ -24,6 +24,9 @@ directly (no backend, no database), 63 passing contract tests, and a Playwright/
 
 ## Live deployment
 
+**Frontend App:** [https://web-flax-five-17.vercel.app](https://web-flax-five-17.vercel.app)
+
+
 | Contract | Address |
 |---|---|
 | Vault | `CCFYMKQ7RMZAHSX5OIP7S3O4UPXWMFAWYDJBWT23OJV4MODXPFMKMPBX` |
