@@ -145,32 +145,12 @@ Dashboard to claim test XLM (via Friendbot) and test USDC (via the token contrac
 
 The project implements a comprehensive CI/CD pipeline via GitHub Actions that automatically tests and builds both the Rust smart contracts and the Next.js frontend on every push and pull request.
 
-```mermaid
-graph TD
-    A[Developer Push / PR] --> B{GitHub Actions Pipeline}
-    
-    subgraph Contract_Pipeline [Rust Smart Contracts]
-        B --> C[Install Rust & Target wasm32]
-        C --> D[Cache Dependencies]
-        D --> E[cargo test --workspace]
-        E --> F[cargo build --target wasm32-unknown-unknown]
-    end
-    
-    subgraph Frontend_Pipeline [Next.js Frontend]
-        B --> G[Setup Node.js 20]
-        G --> H[npm ci]
-        H --> I[npm run lint]
-        I --> J[npm run typecheck]
-        J --> K[npm run test]
-        K --> L[npm run build]
-    end
-    
-    F --> M{All Checks Passed?}
-    L --> M
-    
-    M -- Yes --> N[Ready for Vercel Deployment]
-    M -- No --> O[Pipeline Fails & Blocks Merge]
-```
+<img width="1456" height="836" alt="Screenshot 2026-07-06 at 12 51 36 AM" src="https://github.com/user-attachments/assets/6f4f96c0-9dae-456b-9dd5-7488c24bd805" />
+
+## Mobile Responsiveness
+
+<img width="351" height="734" alt="Screenshot 2026-07-06 at 12 38 52 AM" src="https://github.com/user-attachments/assets/69922d6a-410e-4b45-a681-3360bc38ff11" />
+
 
 ## Testing
 
