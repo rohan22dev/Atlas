@@ -34,9 +34,11 @@ export function WalletButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline" className="gap-2 font-mono" />}>
-        <span className={`size-2 rounded-full ${isCorrectNetwork ? "bg-atlas-green" : "bg-atlas-red"}`} />
-        {truncateAddress(address ?? "")}
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="gap-2 font-mono">
+          <span className={`size-2 rounded-full ${isCorrectNetwork ? "bg-atlas-green" : "bg-atlas-red"}`} />
+          {truncateAddress(address ?? "")}
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-mono text-xs text-muted-foreground">
