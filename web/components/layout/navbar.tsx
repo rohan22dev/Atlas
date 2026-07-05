@@ -37,8 +37,10 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <WalletButton />
           <Sheet>
-            <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" aria-label="Toggle menu" />}>
-              <Menu className="size-5" />
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label="Toggle menu">
+                <Menu className="size-5" />
+              </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <SheetTitle className="sr-only">Navigation</SheetTitle>
