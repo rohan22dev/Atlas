@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { LandingNavbar } from "@/components/landing/landing-navbar";
-import { Footer } from "@/components/landing/cta-footer";
+import { Navigation } from "@/components/landing/navigation";
+import { FooterSection } from "@/components/landing/footer-section";
 import { CONTRACTS } from "@/lib/contracts/config";
 import { ArrowRight } from "lucide-react";
 
@@ -30,7 +30,7 @@ const SECTIONS = [
 export default function DocsPage() {
   return (
     <div className="flex flex-1 flex-col">
-      <LandingNavbar />
+      <Navigation />
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-16 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold tracking-tight">Documentation</h1>
         <p className="mt-3 text-muted-foreground">
@@ -62,7 +62,7 @@ export default function DocsPage() {
           <ArrowRight className="size-4" />
         </Link>
       </main>
-      <Footer />
+      <FooterSection />
     </div>
   );
 }
