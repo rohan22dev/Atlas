@@ -71,10 +71,7 @@ fn test_burn() {
 fn test_mint_requires_admin_auth() {
     let (env, client, admin, user) = setup();
     client.mint(&user, &100);
-    assert_eq!(
-        env.auths()[0].0,
-        admin
-    );
+    assert_eq!(env.auths()[0].0, admin);
 }
 
 #[test]
@@ -124,7 +121,8 @@ fn test_faucet_cooldown_blocks_repeat_claim() {
 fn test_faucet_available_again_after_cooldown() {
     let (env, client, _admin, user) = setup();
     client.faucet(&user);
-    env.ledger().set_timestamp(env.ledger().timestamp() + FAUCET_COOLDOWN + 1);
+    env.ledger()
+        .set_timestamp(env.ledger().timestamp() + FAUCET_COOLDOWN + 1);
     let claimed = client.faucet(&user);
     assert_eq!(claimed, FAUCET_AMOUNT);
     assert_eq!(client.balance(&user), FAUCET_AMOUNT * 2);

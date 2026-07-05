@@ -43,7 +43,7 @@ export function InfrastructureSection() {
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
             }`}
           >
-            <p className="text-sm font-mono text-primary mb-4">// SOROBAN SMART CONTRACTS</p>
+            <p className="text-sm font-mono text-primary mb-4">{"// "}SOROBAN SMART CONTRACTS</p>
             <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight mb-6 text-balance">
               Built for absolute security.
             </h2>

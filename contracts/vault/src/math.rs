@@ -39,7 +39,12 @@ pub fn health_factor(collateral_value: i128, debt_value: i128, liq_threshold_bps
 
 /// Applies simple annual interest to `principal` for the elapsed time
 /// between `last_accrued` and `now`. Returns `(new_principal, interest_delta)`.
-pub fn accrue_interest(principal: i128, last_accrued: u64, now: u64, rate_bps: i128) -> (i128, i128) {
+pub fn accrue_interest(
+    principal: i128,
+    last_accrued: u64,
+    now: u64,
+    rate_bps: i128,
+) -> (i128, i128) {
     if principal <= 0 || now <= last_accrued {
         return (principal, 0);
     }

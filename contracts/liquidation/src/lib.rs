@@ -15,7 +15,9 @@ mod clients;
 mod test;
 
 use clients::VaultClient;
-use soroban_sdk::{contract, contracterror, contractevent, contractimpl, contracttype, token, Address, Env};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, token, Address, Env,
+};
 
 /// Health factor scale, matching the Vault contract: 1.0 == 10_000_000.
 pub const HEALTH_SCALE: i128 = 10_000_000;
@@ -69,7 +71,9 @@ impl LiquidationContract {
         env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage().instance().set(&DataKey::Vault, &vault);
         env.storage().instance().set(&DataKey::Treasury, &treasury);
-        env.storage().instance().set(&DataKey::BorrowToken, &borrow_token);
+        env.storage()
+            .instance()
+            .set(&DataKey::BorrowToken, &borrow_token);
         Ok(())
     }
 
@@ -101,7 +105,12 @@ impl LiquidationContract {
     /// most-recently-read debt plus a small buffer -- any surplus beyond
     /// the position's actual debt is left in the Treasury as protocol
     /// liquidity rather than refunded.
-    pub fn liquidate(env: Env, liquidator: Address, owner: Address, repay_amount: i128) -> Result<(i128, i128), LiquidationError> {
+    pub fn liquidate(
+        env: Env,
+        liquidator: Address,
+        owner: Address,
+        repay_amount: i128,
+    ) -> Result<(i128, i128), LiquidationError> {
         liquidator.require_auth();
 
         let vault = Self::get_addr(&env, &DataKey::Vault)?;
@@ -125,7 +134,8 @@ impl LiquidationContract {
         let token_client = token::Client::new(&env, &borrow_token);
         token_client.transfer(&liquidator, &treasury, &repay_amount);
 
-        let (debt_repaid, collateral_seized) = vault_client.seize(&liquidator, &owner, &repay_amount);
+        let (debt_repaid, collateral_seized) =
+            vault_client.seize(&liquidator, &owner, &repay_amount);
 
         LiquidationExecuted {
             owner,
@@ -147,6 +157,9 @@ impl LiquidationContract {
     }
 
     fn get_addr(env: &Env, key: &DataKey) -> Result<Address, LiquidationError> {
-        env.storage().instance().get(key).ok_or(LiquidationError::NotInitialized)
+        env.storage()
+            .instance()
+            .get(key)
+            .ok_or(LiquidationError::NotInitialized)
     }
 }

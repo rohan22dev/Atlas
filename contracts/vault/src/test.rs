@@ -32,11 +32,21 @@ fn setup() -> TestCtx<'static> {
 
     let xlm_id = env.register(TestToken, ());
     let xlm = TestTokenClient::new(&env, &xlm_id);
-    xlm.initialize(&admin, &7, &String::from_str(&env, "Stellar Lumens"), &String::from_str(&env, "XLM"));
+    xlm.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "Stellar Lumens"),
+        &String::from_str(&env, "XLM"),
+    );
 
     let usdc_id = env.register(TestToken, ());
     let usdc = TestTokenClient::new(&env, &usdc_id);
-    usdc.initialize(&admin, &7, &String::from_str(&env, "Atlas USD Coin"), &String::from_str(&env, "USDC"));
+    usdc.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "Atlas USD Coin"),
+        &String::from_str(&env, "USDC"),
+    );
 
     let oracle_id = env.register(OracleContract, ());
     let oracle = OracleContractClient::new(&env, &oracle_id);
@@ -274,7 +284,8 @@ fn test_calculate_health_reflects_price_drop() {
     assert!(hf_before >= math::HEALTH_SCALE);
 
     // Crash XLM price from $0.10 to $0.05.
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &500_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &500_000);
     let hf_after = ctx.vault.calculate_health(&user);
     assert!(hf_after < hf_before);
     assert!(hf_after < math::HEALTH_SCALE);
@@ -302,7 +313,8 @@ fn test_seize_by_liquidation_contract_succeeds() {
     ctx.vault.borrow(&user, &600_0000000); // max LTV
 
     // Crash XLM price so the position becomes liquidatable.
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000); // $0.07
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000); // $0.07
 
     let liquidator = Address::generate(&ctx.env);
     let (debt_cleared, collateral_seized) = ctx.vault.seize(&liquidator, &user, &600_0000000);
@@ -320,7 +332,8 @@ fn test_seize_with_insufficient_repay_amount_rejected() {
     let user = user_with_xlm(&ctx, 10_000_0000000);
     ctx.vault.deposit(&user, &10_000_0000000);
     ctx.vault.borrow(&user, &600_0000000);
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000);
 
     let liquidator = Address::generate(&ctx.env);
     // Liquidator only offers to repay 500 of the 600 owed.
@@ -357,9 +370,13 @@ fn test_seize_requires_liquidation_contract_auth() {
     let user = user_with_xlm(&ctx, 10_000_0000000);
     ctx.vault.deposit(&user, &10_000_0000000);
     ctx.vault.borrow(&user, &600_0000000);
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000);
 
-    assert_eq!(ctx.vault.get_config().liquidation_contract, ctx.liquidation_contract);
+    assert_eq!(
+        ctx.vault.get_config().liquidation_contract,
+        ctx.liquidation_contract
+    );
 }
 
 #[test]
@@ -371,10 +388,20 @@ fn test_seize_without_liquidation_contract_registered_rejected() {
 
     let xlm_id = env.register(TestToken, ());
     let xlm = TestTokenClient::new(&env, &xlm_id);
-    xlm.initialize(&admin, &7, &String::from_str(&env, "XLM"), &String::from_str(&env, "XLM"));
+    xlm.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "XLM"),
+        &String::from_str(&env, "XLM"),
+    );
     let usdc_id = env.register(TestToken, ());
     let usdc = TestTokenClient::new(&env, &usdc_id);
-    usdc.initialize(&admin, &7, &String::from_str(&env, "USDC"), &String::from_str(&env, "USDC"));
+    usdc.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "USDC"),
+        &String::from_str(&env, "USDC"),
+    );
     let oracle_id = env.register(OracleContract, ());
     let oracle = OracleContractClient::new(&env, &oracle_id);
     oracle.initialize(&admin);

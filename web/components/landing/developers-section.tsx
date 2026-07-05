@@ -70,7 +70,7 @@ export function DevelopersSection() {
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left: Content */}
           <div>
-            <p className="text-sm font-mono text-primary mb-3">// FOR DEVELOPERS</p>
+            <p className="text-sm font-mono text-primary mb-3">{"// "}FOR DEVELOPERS</p>
             <h2 className="text-3xl lg:text-5xl font-semibold tracking-tight mb-6 text-balance">
               Built for developers,<br />by developers.
             </h2>

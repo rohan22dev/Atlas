@@ -9,7 +9,9 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contracterror, contractevent, contractimpl, contracttype, Address, Env, Symbol};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, Address, Env, Symbol,
+};
 
 /// Fixed point scale used for all prices: 7 decimal places.
 pub const PRICE_DECIMALS: u32 = 7;
@@ -96,7 +98,9 @@ impl OracleContract {
         let admin: Address = Self::get_admin(env.clone())?;
         admin.require_auth();
 
-        env.storage().instance().set(&DataKey::Price(asset.clone()), &price);
+        env.storage()
+            .instance()
+            .set(&DataKey::Price(asset.clone()), &price);
         let now = env.ledger().timestamp();
         env.storage()
             .instance()

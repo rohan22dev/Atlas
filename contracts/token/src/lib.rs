@@ -15,7 +15,9 @@ mod storage;
 #[cfg(test)]
 mod test;
 
-use soroban_sdk::{contract, contractevent, contractimpl, contracttype, symbol_short, Address, Env, String};
+use soroban_sdk::{
+    contract, contractevent, contractimpl, contracttype, symbol_short, Address, Env, String,
+};
 use storage::{
     extend_instance_ttl, has_admin, read_admin, read_allowance, read_balance, receive_balance,
     spend_allowance, spend_balance, write_admin, write_allowance,
@@ -168,11 +170,23 @@ impl TestToken {
         read_allowance(&env, from, spender).amount
     }
 
-    pub fn approve(env: Env, from: Address, spender: Address, amount: i128, expiration_ledger: u32) {
+    pub fn approve(
+        env: Env,
+        from: Address,
+        spender: Address,
+        amount: i128,
+        expiration_ledger: u32,
+    ) {
         from.require_auth();
         check_nonnegative_amount(amount);
         extend_instance_ttl(&env);
-        write_allowance(&env, from.clone(), spender.clone(), amount, expiration_ledger);
+        write_allowance(
+            &env,
+            from.clone(),
+            spender.clone(),
+            amount,
+            expiration_ledger,
+        );
         Approve {
             from,
             spender,

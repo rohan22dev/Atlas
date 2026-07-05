@@ -13,7 +13,7 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number; suffi
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          let start = 0;
+          const start = 0;
           const duration = 2000;
           const startTime = performance.now();
 
@@ -91,7 +91,7 @@ export function MetricsSection() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-16">
           <div>
-            <p className="text-sm font-mono text-primary mb-3">// LIVE METRICS</p>
+            <p className="text-sm font-mono text-primary mb-3">{"// "}LIVE METRICS</p>
             <h2 className="text-3xl lg:text-5xl font-semibold tracking-tight text-balance">
               Real-time infrastructure<br />performance.
             </h2>

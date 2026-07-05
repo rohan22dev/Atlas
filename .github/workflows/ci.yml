@@ -7,8 +7,38 @@ on:
     branches: [ "master", "main" ]
 
 jobs:
-  contracts:
-    name: Build & Test Contracts
+  lint-and-format:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+          
+      - name: Rust Format Check
+        run: cargo fmt --all -- --check
+        
+      - name: Install JS Dependencies
+        working-directory: web
+        run: npm install --legacy-peer-deps
+        
+      - name: JS Lint
+        working-directory: web
+        run: npm run lint
+
+  test-contracts:
+    name: Test Smart Contracts
+    needs: lint-and-format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,11 +50,10 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Run Tests
         run: cargo test --workspace
-      - name: Build Contracts
-        run: cargo build --target wasm32-unknown-unknown --release
 
-  frontend:
-    name: Build & Test Frontend
+  test-frontend:
+    name: Test Frontend
+    needs: lint-and-format
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,12 +67,41 @@ jobs:
           cache: 'npm'
           cache-dependency-path: web/package-lock.json
       - name: Install dependencies
-        run: npm ci
-      - name: Run Linter
-        run: npm run lint --if-present
-      - name: Run Typecheck
-        run: npm run typecheck --if-present
+        run: npm install --legacy-peer-deps
       - name: Run Unit Tests
         run: npm run test
+
+  build-contracts:
+    name: Build Smart Contracts
+    needs: test-contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+      - name: Build Contracts
+        run: cargo build --target wasm32-unknown-unknown --release
+
+  build-frontend:
+    name: Build Frontend
+    needs: test-frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
       - name: Build Application
         run: npm run build

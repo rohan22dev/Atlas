@@ -85,7 +85,9 @@ pub fn write_allowance(
         let live_for = expiration_ledger
             .checked_sub(env.ledger().sequence())
             .unwrap_or(0);
-        env.storage().temporary().extend_ttl(&key, live_for, live_for);
+        env.storage()
+            .temporary()
+            .extend_ttl(&key, live_for, live_for);
     }
 }
 
@@ -129,7 +131,11 @@ fn write_balance(env: &Env, addr: Address, amount: i128) {
 
 pub fn receive_balance(env: &Env, addr: Address, amount: i128) {
     let balance = read_balance(env, addr.clone());
-    write_balance(env, addr, balance.checked_add(amount).expect("balance overflow"));
+    write_balance(
+        env,
+        addr,
+        balance.checked_add(amount).expect("balance overflow"),
+    );
 }
 
 pub fn spend_balance(env: &Env, addr: Address, amount: i128) {

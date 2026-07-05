@@ -10,7 +10,9 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contracterror, contractevent, contractimpl, contracttype, token, Address, Env};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, token, Address, Env,
+};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -155,9 +157,15 @@ impl TreasuryContract {
         let vault = Self::get_vault(env.clone())?;
         vault.require_auth();
 
-        let total: i128 = env.storage().instance().get(&DataKey::TotalFees).unwrap_or(0);
+        let total: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::TotalFees)
+            .unwrap_or(0);
         let new_total = total.checked_add(amount).expect("fee overflow");
-        env.storage().instance().set(&DataKey::TotalFees, &new_total);
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalFees, &new_total);
         FeesCollected {
             amount,
             total_fees: new_total,
@@ -193,7 +201,10 @@ impl TreasuryContract {
     }
 
     pub fn get_total_fees(env: Env) -> i128 {
-        env.storage().instance().get(&DataKey::TotalFees).unwrap_or(0)
+        env.storage()
+            .instance()
+            .get(&DataKey::TotalFees)
+            .unwrap_or(0)
     }
 }
 

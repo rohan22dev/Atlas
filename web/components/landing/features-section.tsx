@@ -221,7 +221,7 @@ export function FeaturesSection() {
         {/* Header with ASCII cube */}
         <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
           <div>
-            <p className="text-sm font-mono text-primary mb-3">// PROTOCOL</p>
+            <p className="text-sm font-mono text-primary mb-3">{"// "}PROTOCOL</p>
             <h2
               className={`text-3xl lg:text-5xl font-semibold tracking-tight mb-6 transition-all duration-700 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

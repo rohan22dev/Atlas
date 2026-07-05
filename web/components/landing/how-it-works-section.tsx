@@ -66,7 +66,7 @@ export function HowItWorksSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <div className="mb-20">
-          <p className="text-sm font-mono text-primary mb-3">// TECHNOLOGY</p>
+          <p className="text-sm font-mono text-primary mb-3">{"// "}TECHNOLOGY</p>
           <h2
             className={`text-3xl lg:text-5xl font-semibold tracking-tight mb-6 transition-all duration-700 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

@@ -31,11 +31,21 @@ fn setup() -> TestCtx<'static> {
 
     let xlm_id = env.register(TestToken, ());
     let xlm = TestTokenClient::new(&env, &xlm_id);
-    xlm.initialize(&admin, &7, &String::from_str(&env, "Stellar Lumens"), &String::from_str(&env, "XLM"));
+    xlm.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "Stellar Lumens"),
+        &String::from_str(&env, "XLM"),
+    );
 
     let usdc_id = env.register(TestToken, ());
     let usdc = TestTokenClient::new(&env, &usdc_id);
-    usdc.initialize(&admin, &7, &String::from_str(&env, "Atlas USD Coin"), &String::from_str(&env, "USDC"));
+    usdc.initialize(
+        &admin,
+        &7,
+        &String::from_str(&env, "Atlas USD Coin"),
+        &String::from_str(&env, "USDC"),
+    );
 
     let oracle_id = env.register(OracleContract, ());
     let oracle = OracleContractClient::new(&env, &oracle_id);
@@ -89,18 +99,23 @@ fn test_full_liquidation_flow() {
     ctx.vault.borrow(&user, &600_0000000); // max LTV at $0.10 XLM
 
     // XLM price crashes -> position becomes liquidatable.
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000); // $0.07
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000); // $0.07
     assert!(ctx.liquidation.is_liquidatable(&user));
 
     let liquidator = Address::generate(&ctx.env);
     ctx.usdc.mint(&liquidator, &1_000_0000000);
 
     let liquidator_xlm_before = ctx.xlm.balance(&liquidator);
-    let (debt_repaid, collateral_seized) = ctx.liquidation.liquidate(&liquidator, &user, &600_0000000);
+    let (debt_repaid, collateral_seized) =
+        ctx.liquidation.liquidate(&liquidator, &user, &600_0000000);
 
     assert_eq!(debt_repaid, 600_0000000);
     assert!(collateral_seized > 0);
-    assert_eq!(ctx.xlm.balance(&liquidator), liquidator_xlm_before + collateral_seized);
+    assert_eq!(
+        ctx.xlm.balance(&liquidator),
+        liquidator_xlm_before + collateral_seized
+    );
 
     // Liquidator paid the debt into the treasury.
     assert_eq!(ctx.usdc.balance(&liquidator), 1_000_0000000 - 600_0000000);
@@ -127,7 +142,9 @@ fn test_liquidate_healthy_position_rejected() {
     let liquidator = Address::generate(&ctx.env);
     ctx.usdc.mint(&liquidator, &1_000_0000000);
 
-    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &100_0000000);
+    let result = ctx
+        .liquidation
+        .try_liquidate(&liquidator, &user, &100_0000000);
     assert!(result.is_err());
 }
 
@@ -138,11 +155,14 @@ fn test_liquidate_insufficient_liquidator_balance_reverts_atomically() {
     ctx.xlm.mint(&user, &10_000_0000000);
     ctx.vault.deposit(&user, &10_000_0000000);
     ctx.vault.borrow(&user, &600_0000000);
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000);
 
     // Liquidator has no USDC at all.
     let liquidator = Address::generate(&ctx.env);
-    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &600_0000000);
+    let result = ctx
+        .liquidation
+        .try_liquidate(&liquidator, &user, &600_0000000);
     assert!(result.is_err());
 
     // Position must be untouched -- debt still outstanding, no collateral
@@ -159,13 +179,16 @@ fn test_liquidate_with_insufficient_repay_amount_rejected() {
     ctx.xlm.mint(&user, &10_000_0000000);
     ctx.vault.deposit(&user, &10_000_0000000);
     ctx.vault.borrow(&user, &600_0000000);
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000);
 
     let liquidator = Address::generate(&ctx.env);
     ctx.usdc.mint(&liquidator, &1_000_0000000);
 
     // Liquidator only offers to repay half the debt.
-    let result = ctx.liquidation.try_liquidate(&liquidator, &user, &300_0000000);
+    let result = ctx
+        .liquidation
+        .try_liquidate(&liquidator, &user, &300_0000000);
     assert!(result.is_err());
 
     let position = ctx.vault.get_position(&user);
@@ -181,18 +204,16 @@ fn test_is_liquidatable_reflects_health() {
     ctx.vault.borrow(&user, &600_0000000);
 
     assert!(!ctx.liquidation.is_liquidatable(&user));
-    ctx.oracle.update_price(&Symbol::new(&ctx.env, XLM), &700_000);
+    ctx.oracle
+        .update_price(&Symbol::new(&ctx.env, XLM), &700_000);
     assert!(ctx.liquidation.is_liquidatable(&user));
 }
 
 #[test]
 fn test_double_initialize_fails() {
     let ctx = setup();
-    let result = ctx.liquidation.try_initialize(
-        &ctx.admin,
-        &ctx.admin,
-        &ctx.admin,
-        &ctx.admin,
-    );
+    let result = ctx
+        .liquidation
+        .try_initialize(&ctx.admin, &ctx.admin, &ctx.admin, &ctx.admin);
     assert!(result.is_err());
 }

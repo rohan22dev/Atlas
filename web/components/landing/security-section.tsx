@@ -82,7 +82,7 @@ export function SecuritySection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <p className="text-sm font-mono text-primary mb-4">// ENTERPRISE SECURITY</p>
+          <p className="text-sm font-mono text-primary mb-4">{"// "}ENTERPRISE SECURITY</p>
           <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight mb-6 text-balance">
             Security you can trust.
           </h2>

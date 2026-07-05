@@ -174,11 +174,15 @@ impl VaultContract {
         env.storage()
             .instance()
             .set(&DataKey::CollateralToken, &collateral_token);
-        env.storage().instance().set(&DataKey::BorrowToken, &borrow_token);
+        env.storage()
+            .instance()
+            .set(&DataKey::BorrowToken, &borrow_token);
         env.storage()
             .instance()
             .set(&DataKey::CollateralSymbol, &collateral_symbol);
-        env.storage().instance().set(&DataKey::BorrowSymbol, &borrow_symbol);
+        env.storage()
+            .instance()
+            .set(&DataKey::BorrowSymbol, &borrow_symbol);
         env.storage().instance().set(&DataKey::Oracle, &oracle);
         env.storage().instance().set(&DataKey::Treasury, &treasury);
         Ok(())
@@ -187,7 +191,10 @@ impl VaultContract {
     /// Wires up the Liquidation contract after it has been deployed
     /// (it in turn needs this Vault's address, so the two must be
     /// connected in a second step). Admin-only.
-    pub fn set_liquidation_contract(env: Env, liquidation_contract: Address) -> Result<(), VaultError> {
+    pub fn set_liquidation_contract(
+        env: Env,
+        liquidation_contract: Address,
+    ) -> Result<(), VaultError> {
         let admin = Self::require_admin(&env)?;
         admin.require_auth();
         env.storage()
@@ -400,7 +407,11 @@ impl VaultContract {
         let (price_collateral, price_debt) = Self::prices(&env)?;
         let collateral_value = usd_value(position.collateral, price_collateral);
         let debt_value = usd_value(position.debt_principal, price_debt);
-        Ok(health_factor(collateral_value, debt_value, LIQUIDATION_THRESHOLD_BPS))
+        Ok(health_factor(
+            collateral_value,
+            debt_value,
+            LIQUIDATION_THRESHOLD_BPS,
+        ))
     }
 
     pub fn get_position(env: Env, user: Address) -> Position {
@@ -474,7 +485,12 @@ impl VaultContract {
     /// simulating and executing the transaction) is left in the Treasury
     /// as protocol liquidity rather than refunded, keeping this call free
     /// of any further auth-constrained token transfers.
-    pub fn seize(env: Env, liquidator: Address, owner: Address, repay_amount: i128) -> Result<(i128, i128), VaultError> {
+    pub fn seize(
+        env: Env,
+        liquidator: Address,
+        owner: Address,
+        repay_amount: i128,
+    ) -> Result<(i128, i128), VaultError> {
         let liquidation_contract: Address = env
             .storage()
             .instance()
@@ -501,7 +517,8 @@ impl VaultContract {
         }
 
         let debt_cleared = position.debt_principal;
-        let bonus_debt_value = debt_value * (BPS_DENOMINATOR + LIQUIDATION_BONUS_BPS) / BPS_DENOMINATOR;
+        let bonus_debt_value =
+            debt_value * (BPS_DENOMINATOR + LIQUIDATION_BONUS_BPS) / BPS_DENOMINATOR;
         let mut collateral_seized = bonus_debt_value * math::PRICE_SCALE / price_collateral;
         if collateral_seized > position.collateral {
             collateral_seized = position.collateral;
@@ -513,7 +530,11 @@ impl VaultContract {
 
         let collateral_token = Self::get_addr(&env, &DataKey::CollateralToken)?;
         let client = token::Client::new(&env, &collateral_token);
-        client.transfer(&env.current_contract_address(), &liquidator, &collateral_seized);
+        client.transfer(
+            &env.current_contract_address(),
+            &liquidator,
+            &collateral_seized,
+        );
 
         Seized {
             owner,
@@ -609,8 +630,12 @@ impl VaultContract {
             position.last_accrued = now;
             return;
         }
-        let (new_principal, interest_delta) =
-            accrue_interest(position.debt_principal, position.last_accrued, now, INTEREST_RATE_BPS);
+        let (new_principal, interest_delta) = accrue_interest(
+            position.debt_principal,
+            position.last_accrued,
+            now,
+            INTEREST_RATE_BPS,
+        );
         position.debt_principal = new_principal;
         position.last_accrued = now;
 
@@ -636,8 +661,12 @@ impl VaultContract {
         if position.last_accrued == 0 {
             return;
         }
-        let (new_principal, _) =
-            accrue_interest(position.debt_principal, position.last_accrued, now, INTEREST_RATE_BPS);
+        let (new_principal, _) = accrue_interest(
+            position.debt_principal,
+            position.last_accrued,
+            now,
+            INTEREST_RATE_BPS,
+        );
         position.debt_principal = new_principal;
     }
 }

@@ -86,7 +86,7 @@ export function IntegrationsSection() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <p className="text-sm font-mono text-primary mb-4">// ECOSYSTEM</p>
+          <p className="text-sm font-mono text-primary mb-4">{"// "}ECOSYSTEM</p>
           <h2 className="text-4xl lg:text-5xl font-semibold tracking-tight mb-6 text-balance">
             Stellar Native.<br />Fully composable.
           </h2>
@@ -146,7 +146,7 @@ export function IntegrationsSection() {
               </div>
 
               <div className="font-mono text-xs text-muted-foreground space-y-2 bg-background/50 rounded-lg p-6 border border-border">
-                <div className="text-primary mb-2">// Example: Listen for liquidations</div>
+                <div className="text-primary mb-2">{"// "}Example: Listen for liquidations</div>
                 <div>
                   <span className="text-purple-400">const</span> sub = <span className="text-blue-400">await</span> atlas.events.subscribe({'{'}
                 </div>
