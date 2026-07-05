@@ -141,6 +141,37 @@ npm run dev
 Open http://localhost:3000. Connect Freighter (or xBull/Lobstr) set to **Testnet**. Use the in-app faucet on the
 Dashboard to claim test XLM (via Friendbot) and test USDC (via the token contract's permissionless faucet).
 
+## CI/CD Pipeline
+
+The project implements a comprehensive CI/CD pipeline via GitHub Actions that automatically tests and builds both the Rust smart contracts and the Next.js frontend on every push and pull request.
+
+```mermaid
+graph TD
+    A[Developer Push / PR] --> B{GitHub Actions Pipeline}
+    
+    subgraph Contract_Pipeline [Rust Smart Contracts]
+        B --> C[Install Rust & Target wasm32]
+        C --> D[Cache Dependencies]
+        D --> E[cargo test --workspace]
+        E --> F[cargo build --target wasm32-unknown-unknown]
+    end
+    
+    subgraph Frontend_Pipeline [Next.js Frontend]
+        B --> G[Setup Node.js 20]
+        G --> H[npm ci]
+        H --> I[npm run lint]
+        I --> J[npm run typecheck]
+        J --> K[npm run test]
+        K --> L[npm run build]
+    end
+    
+    F --> M{All Checks Passed?}
+    L --> M
+    
+    M -- Yes --> N[Ready for Vercel Deployment]
+    M -- No --> O[Pipeline Fails & Blocks Merge]
+```
+
 ## Testing
 
 ```bash
